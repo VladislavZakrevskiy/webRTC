@@ -1,23 +1,32 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react'
 
+export type fuctionType<T> = (state: T) => T
+export type notReqFuctionType<T> = (state?: T) => void
 
+type UpdateStateNewStateCb<T> = T | fuctionType<T>
+type UpdateStateCb<T> = notReqFuctionType<T> | null
+type IUpdateState<T> = (newState: UpdateStateNewStateCb<T>, cb: UpdateStateCb<T> | null) => void
 
-export const useStateWithCallback = <T>(initialState: T)=> {
-    const [state, setState] = useState<T>(initialState)
-    const cbRef = useRef<Function | null>(null)
+const isFunctionType = <T>(value: any): value is fuctionType<T> => {
+	return value.apply !== undefined
+}
 
-    const updateState = useCallback((newState: any, cb: Function) => {
-        cbRef.current = cb
+export const useStateWithCallback = <T>(initialState: T): [T, IUpdateState<T>] => {
+	const [state, setState] = useState<T>(initialState)
+	const cbRef = useRef<notReqFuctionType<T> | null>(null)
 
-        setState((prev: any) => typeof newState === 'function' ? newState(prev) : newState)
-    }, [])
+	const updateState: IUpdateState<T> = useCallback((newState, cb) => {
+		cbRef.current = cb
 
-    useEffect(() => {
-        if(cbRef.current) {
-            cbRef.current(state)
-            cbRef.current = null
-        }
-    }, [state])
+		setState((prev: T) => (isFunctionType<T>(newState) ? newState(prev) : newState))
+	}, [])
 
-    return [state, updateState]
+	useEffect(() => {
+		if (cbRef.current) {
+			cbRef.current(state)
+			cbRef.current = null
+		}
+	}, [state])
+
+	return [state, updateState]
 }

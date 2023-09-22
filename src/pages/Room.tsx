@@ -1,21 +1,19 @@
-import { useParams } from "react-router-dom"
-import { useWebRTC } from "../hooks/useWebRTC"
-import Video from "../components/Video"
+import { useParams } from 'react-router-dom'
+import { useWebRTC } from '../hooks/useWebRTC'
+import Video from '../components/Video'
 import './Room.css'
 
 const Room = () => {
-  const {id: roomId} = useParams()
-  const {clients, provideMediaRef} = useWebRTC(roomId!)
-  
+	const { id: roomId } = useParams<{ id: string }>()
+	const { clients, provideMediaRef } = useWebRTC(roomId)
 
-  return (
-    <div className="video_list">
-        {
-          // @ts-ignore
-          clients.map(clientId => <Video clientId={clientId} provideMediaRef={provideMediaRef}/>)
-        }
-    </div>
-  )
+	return (
+		<div className="video_list">
+			{clients.map((clientId) => (
+				<Video key={clientId} clientId={clientId} provideMediaRef={provideMediaRef} />
+			))}
+		</div>
+	)
 }
 
 export default Room

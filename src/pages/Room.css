@@ -2,3 +2,8 @@
     display: flex;
     flex-wrap: wrap;
 }
+
+.video {
+    max-height: 100%;
+    max-width: 100%;
+}
